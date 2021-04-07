@@ -49,7 +49,7 @@ function App(props) {
       } else {
         setCurrentUser({ email: null, role: null, uid: null });
       }
-      console.log(currentUser?.email, "currentUser.email");
+      console.log(currentUser, "currentUser.email");
     });
 
     return function cleanup() {
@@ -71,7 +71,11 @@ function App(props) {
             )}
           </Route>
           {currentUser?.email ? (
-            <Route path={"/dashboard/:chatID"}>
+            <Route
+              path={
+                "/dashboard/:ticketID/:subject/:name/:owner/:email/:message"
+              }
+            >
               <Chat />
             </Route>
           ) : null}

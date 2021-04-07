@@ -15,8 +15,6 @@ const Dashboard = (props) => {
   const ticketViewTrigger = () => {
     setTicketListTrigger(true);
     setCreateTicketTrigger(false);
-    console.log(tickets, "tickets before");
-    console.log(tickets, "tickets after");
   };
   const CreateTicketFormTrigger = () => {
     setTicketListTrigger(false);

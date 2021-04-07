@@ -27,21 +27,16 @@ export const getUser = async (user, additionalData) => {
 };
 
 export const addTicketToDB = async (ticket, owner) => {
-  await db
-    .collection("tickets")
-    .add({
-      ...ticket,
-      createdAt: new Date(),
-      owner: owner.uid,
-    })
-    .then((docRef) => {
-      console.log("Document written with ID: ", docRef.id);
-    })
-    .catch((error) => {
-      console.error("Error adding document: ", error);
-    });
-  // const collectionRef = db.collection(ticket);
-  // const docRef = collectionRef.doc(ticket);
+  var newDocRef = db.collection("tickets").doc();
+  newDocRef.set({
+    ...ticket,
+    createdAt: new Date(),
+    owner: owner.uid,
+    id: newDocRef.id,
+    chats: [],
+  });
+
+  console.log(newDocRef.id);
 };
 
 export const getTicketsFromDB = () => {
@@ -54,10 +49,6 @@ export const getTicketsFromDB = () => {
         // doc.data() is never undefined for query doc snapshots
         console.log(doc.id, " => ", doc.data());
         tickets.push(doc.data());
-        tickets[index] = {
-          ...doc.data(),
-          id: doc.id,
-        };
       });
     });
   console.log(tickets, "tickets");
@@ -78,4 +69,38 @@ export const getTicketsFromDBUser = (user) => {
     });
   console.log(tickets, "tickets");
   return tickets;
+};
+
+export const messageSend = (ticketID, message, owner) => {
+  var ticketRef = db.collection("tickets").doc(ticketID);
+
+  ticketRef.update({
+    chats: firebase.firestore.FieldValue.arrayUnion({
+      message: message,
+      owner: owner,
+      id: Math.floor(Math.random() * 10 + 1),
+    }),
+  });
+
+  // Set the "capital" field of the city 'DC'
+  // return
+};
+
+export const getChatFromDB = async (ticketID) => {
+  var chats = null;
+  var docRef = db.collection("tickets").doc(ticketID);
+  await docRef
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        chats = doc.data().chats;
+      } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+      }
+    })
+    .catch((error) => {
+      console.log("Error getting document:", error);
+    });
+  return chats;
 };

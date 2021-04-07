@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const TicketCard = ({ ticket }) => {
   const toDateTime = (secs) => {
@@ -98,16 +99,20 @@ const TicketCard = ({ ticket }) => {
                     </div>
 
                     <div class="mt-4 flex">
-                      <button
-                        class="flex items-center
+                      <Link
+                        to={`/dashboard/${ticket.id}/${ticket.subject}/${ticket.name}/${ticket.owner}/${ticket.email}/${ticket.message}`}
+                      >
+                        <button
+                          class="flex items-center
 										focus:outline-none border rounded-full
 										py-2 px-6 leading-none border-gray-500
 										dark:border-gray-600 select-none
 										hover:bg-blue-400 hover:text-white
 										dark-hover:text-gray-200"
-                      >
-                        <span>Show details</span>
-                      </button>
+                        >
+                          <span>Show details</span>
+                        </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
