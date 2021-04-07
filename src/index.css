@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "Open Sans Condensed", sans-serif;
+}
+nav,
+.form,
+button,
+.checkoutPage {
+  font-family: "Montserrat", sans-serif;
+}
+#menu-toggle:checked + #menu {
+  display: block;
+}
+@media all and (max-width: 1024px) {
+  .mobile-menu {
+    position: absolute;
+    right: 0%;
+    top: 73px;
+    z-index: 10;
+    background: #f9fafb;
+    padding: 20px;
+    border-radius: 4%;
+    transition: all ease 0.3s;
+  }
+}
