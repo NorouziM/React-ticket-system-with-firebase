@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { addTicketToDB } from "../firebase.util";
+import { connect } from "react-redux";
 
-const CreateTicket = () => {
+const CreateTicket = ({ currentUser }) => {
   const [name, setName] = useState("");
   const [subject, setSubject] = useState("");
   const [email, setEmail] = useState("");
@@ -27,7 +28,7 @@ const CreateTicket = () => {
       email: email,
       message: message,
     };
-    addTicketToDB(ticket);
+    addTicketToDB(ticket, currentUser);
   };
 
   return (
@@ -75,7 +76,7 @@ const CreateTicket = () => {
         <div className="mb-4">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
-            for="name"
+            htmlFor="name"
           >
             Subject
           </label>
@@ -123,5 +124,7 @@ const CreateTicket = () => {
     </div>
   );
 };
-
-export default CreateTicket;
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser,
+});
+export default connect(mapStateToProps)(CreateTicket);

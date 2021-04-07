@@ -7,11 +7,16 @@ import { Windmill } from "@windmill/react-ui";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import reportWebVitals from "./reportWebVitals";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistor } from "./redux/store";
+import { Spinner } from "./components/Spinner";
 
 ReactDOM.render(
   <Provider store={store}>
     <Windmill theme={mytheme}>
-      <App />
+      <PersistGate loading={null} persistor={persistor}>
+        <App />
+      </PersistGate>
     </Windmill>
   </Provider>,
   document.getElementById("root")

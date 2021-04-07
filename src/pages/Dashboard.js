@@ -1,33 +1,39 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import { connect } from "react-redux";
-import { getTicketsFromDB } from "../firebase.util";
+import { getTicketsFromDB, getTicketsFromDBUser } from "../firebase.util";
 import TicketCard from "../components/TicketCard";
 import CreateTicket from "../components/CreateTicket";
 import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
 
 const Dashboard = (props) => {
-  const { role } = props.currentUser;
+  const { currentUser } = props;
   const [ticketListTrigger, setTicketListTrigger] = useState(false);
   const [createTicketTrigger, setCreateTicketTrigger] = useState(false);
-  const [tickets, setTickets] = useState(false);
+  const [tickets, setTickets] = useState([]);
 
   const ticketViewTrigger = () => {
     setTicketListTrigger(true);
     setCreateTicketTrigger(false);
+    console.log(tickets, "tickets before");
+    console.log(tickets, "tickets after");
   };
   const CreateTicketFormTrigger = () => {
     setTicketListTrigger(false);
     setCreateTicketTrigger(true);
   };
   useEffect(() => {
-    setTickets(getTicketsFromDB());
+    if (currentUser?.role) {
+      currentUser?.role === "user"
+        ? setTickets(getTicketsFromDBUser(currentUser))
+        : setTickets(getTicketsFromDB());
+    }
   }, []);
 
   return (
     <div class="h-screen flex">
       <Sidebar
-        role={role}
+        role={currentUser?.role}
         ticketViewTrigger={ticketViewTrigger}
         CreateTicketFormTrigger={CreateTicketFormTrigger}
       />
@@ -41,17 +47,17 @@ const Dashboard = (props) => {
           })
         ) : createTicketTrigger ? (
           <CreateTicket />
+        ) : currentUser?.email ? (
+          <p>You are logged in</p>
         ) : (
-          <Route path={"/dashboard"}>
-            <p>You are logged in</p>
-          </Route>
+          <p>You are not logged in</p>
         )}
       </main>
     </div>
   );
 };
 
-const mapStateToProps = (state) => ({
-  currentUser: state.user.currentUser,
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser,
 });
 export default connect(mapStateToProps)(Dashboard);

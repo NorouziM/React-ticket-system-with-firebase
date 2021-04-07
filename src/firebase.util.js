@@ -26,12 +26,13 @@ export const getUser = async (user, additionalData) => {
   return docRef;
 };
 
-export const addTicketToDB = async (ticket) => {
+export const addTicketToDB = async (ticket, owner) => {
   await db
     .collection("tickets")
     .add({
       ...ticket,
       createdAt: new Date(),
+      owner: owner.uid,
     })
     .then((docRef) => {
       console.log("Document written with ID: ", docRef.id);
@@ -44,14 +45,35 @@ export const addTicketToDB = async (ticket) => {
 };
 
 export const getTicketsFromDB = () => {
+  console.log("getTicketsFromDB Fired");
+  var tickets = [];
+  db.collection("tickets")
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc, index) => {
+        // doc.data() is never undefined for query doc snapshots
+        console.log(doc.id, " => ", doc.data());
+        tickets.push(doc.data());
+        tickets[index] = {
+          ...doc.data(),
+          id: doc.id,
+        };
+      });
+    });
+  console.log(tickets, "tickets");
+  return tickets;
+};
+
+export const getTicketsFromDBUser = (user) => {
+  console.log("getTicketsFromDBUser Fired");
   var tickets = [];
   db.collection("tickets")
     .get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, " => ", doc.data());
-        tickets.push(doc.data());
+
+        if (doc.data().owner === user.uid) tickets.push(doc.data());
       });
     });
   console.log(tickets, "tickets");

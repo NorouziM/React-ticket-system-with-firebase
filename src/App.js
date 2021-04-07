@@ -16,13 +16,14 @@ import { auth } from "./firebase.util";
 
 import { connect } from "react-redux";
 import { setCurrentUser } from "./redux/userActions";
+import Chat from "./pages/Chat";
 // Dynamic Imorting with React Lazy
 
 function App(props) {
   const { setCurrentUser, currentUser, history } = props;
 
   useEffect(() => {
-    var unSubscribeFromAuth = auth.onAuthStateChanged(async (user) => {
+    var unSubscribeFromAuth = auth.onAuthStateChanged((user) => {
       if (user) {
         console.log(user.email, "Sign in Successfull");
         var docRef = db.collection("users").doc(`${user.uid}`);
@@ -35,6 +36,7 @@ function App(props) {
               setCurrentUser({
                 email: doc.data().email,
                 role: doc.data().role,
+                uid: user.uid,
               });
             } else {
               // doc.data() will be undefined in this case
@@ -45,8 +47,9 @@ function App(props) {
             console.log("Error getting document:", error);
           });
       } else {
-        setCurrentUser({ email: null, role: null });
+        setCurrentUser({ email: null, role: null, uid: null });
       }
+      console.log(currentUser?.email, "currentUser.email");
     });
 
     return function cleanup() {
@@ -58,13 +61,20 @@ function App(props) {
       <Router>
         <Suspense fallback={<Spinner size={28} />}>
           <Route exact path={"/"}>
-            {/* (currentUser ? <Redirect to="/dashboard" /> : ( */}
-            <div>
-              <Nav />
-              <Homepage />
-            </div>
+            {currentUser?.email ? (
+              <Redirect to="/dashboard" />
+            ) : (
+              <div>
+                <Nav />
+                <Homepage />
+              </div>
+            )}
           </Route>
-
+          {currentUser?.email ? (
+            <Route path={"/dashboard/:chatID"}>
+              <Chat />
+            </Route>
+          ) : null}
           <Route exact path={"/dashboard"}>
             <Dashboard />
           </Route>
@@ -77,7 +87,7 @@ function App(props) {
 const mapDispatchToProps = (dispatch) => ({
   setCurrentUser: (user) => dispatch(setCurrentUser(user)),
 });
-const mapStateToProps = (state) => ({
-  currentUser: state.user.currentUser,
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser,
 });
 export default connect(mapStateToProps, mapDispatchToProps)(App);

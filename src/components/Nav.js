@@ -42,6 +42,13 @@ function Nav({ currentUser }) {
                   {currentUser.email} Signed In
                 </Button>
               ) : null}
+              {currentUser.email ? (
+                <Link to="/dashboard">
+                  <Button style={{ cursor: "default" }} layout="link">
+                    Dashboard
+                  </Button>
+                </Link>
+              ) : null}
               <li>
                 {currentUser.email ? (
                   <Button
