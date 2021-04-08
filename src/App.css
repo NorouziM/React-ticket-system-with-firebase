@@ -27,6 +27,22 @@
 .App-link {
   color: #61dafb;
 }
+.bg-indigo-400 {
+  background-color: #93a2dc !important;
+}
+.bg-indigo-500 {
+  background-color: #3b509d !important;
+}
+.bg-indigo-500 {
+  background-color: #2d3c72 !important;
+}
+.bg-gradient {
+  background: linear-gradient(
+    45deg,
+    rgba(147, 162, 220, 1) 0%,
+    rgba(59, 80, 157, 1) 100%
+  ) !important;
+}
 
 @keyframes App-logo-spin {
   from {

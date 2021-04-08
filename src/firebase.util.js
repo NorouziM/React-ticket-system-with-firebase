@@ -35,23 +35,18 @@ export const addTicketToDB = async (ticket, owner) => {
     id: newDocRef.id,
     chats: [],
   });
-
-  console.log(newDocRef.id);
 };
 
 export const getTicketsFromDB = () => {
-  console.log("getTicketsFromDB Fired");
   var tickets = [];
   db.collection("tickets")
     .get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc, index) => {
         // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, " => ", doc.data());
         tickets.push(doc.data());
       });
     });
-  console.log(tickets, "tickets");
   return tickets;
 };
 
@@ -104,3 +99,5 @@ export const getChatFromDB = async (ticketID) => {
     });
   return chats;
 };
+
+export const checkTicketStatusWithFirebase = (ticketID) => {};

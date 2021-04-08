@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { getChatFromDB, db } from "../firebase.util";
+import { Spinner } from "./Spinner";
 
 const TicketCard = ({ ticket }) => {
+  const [isTicketOpened, setTicketOpened] = useState(null);
+
   const toDateTime = (secs) => {
     var t = new Date(1970, 0, 1); // Epoch
     t.setSeconds(secs);
@@ -13,10 +18,32 @@ const TicketCard = ({ ticket }) => {
     };
     return t.toLocaleDateString("en-UK", options).toString();
   };
+  const checkTicketIsOpened = () => {
+    getChatFromDB(ticket.id).then((dialogs) => {
+      if (dialogs.length) var lastChat = dialogs.slice(-1)[0];
+      if (lastChat) {
+        db.collection("users")
+          .doc(lastChat.owner)
+          .get()
+          .then((doc) => {
+            if (doc.data().role === "admin") setTicketOpened(true);
+            else setTicketOpened(false);
+          });
+      } else setTicketOpened(false);
+    });
+  };
+
+  useEffect(() => {
+    checkTicketIsOpened();
+  }, []);
+
+  var classString =
+    "flex w-full items-center justify-between bg-white px-8 py-6 border-green-500 ";
+  classString += isTicketOpened ? " " : "border-l-4";
 
   return (
     <div>
-      {ticket ? (
+      {isTicketOpened !== null ? (
         <div>
           <div
             class="border dark:border-gray-700 transition duration-500
@@ -24,11 +51,7 @@ const TicketCard = ({ ticket }) => {
           ></div>
           <div class="flex flex-col mt-2">
             <div class="flex flex-row mt-2">
-              <div
-                class="flex w-full items-center justify-between bg-white
-						dark:bg-gray-800 px-8 py-6 border-l-4 border-green-500
-						dark:border-green-300"
-              >
+              <div class={classString}>
                 <div class="flex">
                   <img
                     class="h-12 w-12 rounded-full object-cover"
@@ -100,9 +123,10 @@ const TicketCard = ({ ticket }) => {
 
                     <div class="mt-4 flex">
                       <Link
-                        to={`/dashboard/${ticket.id}/${ticket.subject}/${ticket.name}/${ticket.owner}/${ticket.email}/${ticket.message}`}
+                        to={`/profile/${ticket.id}/${ticket.subject}/${ticket.name}/${ticket.owner}/${ticket.email}/${ticket.message}`}
                       >
                         <button
+                          onClick={checkTicketIsOpened}
                           class="flex items-center
 										focus:outline-none border rounded-full
 										py-2 px-6 leading-none border-gray-500
@@ -121,7 +145,7 @@ const TicketCard = ({ ticket }) => {
           </div>
         </div>
       ) : (
-        <p>You have no tickets</p>
+        <Spinner size={28} />
       )}
     </div>
   );

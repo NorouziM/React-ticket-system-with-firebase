@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { messageSend } from "../../firebase.util";
 
-const ChatInput = ({ ticketID, uid }) => {
+const ChatInput = ({ ticketID, uid, setAreDialogsReady }) => {
   const [message, setMessage] = useState("");
   const onInputChange = (e) => {
     setMessage(e.target.value);
@@ -57,8 +57,9 @@ const ChatInput = ({ ticketID, uid }) => {
           onClick={() => {
             setMessage("");
             messageSend(ticketID, message, uid);
+            setAreDialogsReady(false);
           }}
-          className="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-1 flex-shrink-0"
+          className="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-1 flex-shrink-0 bg-gradient"
         >
           <span>Send</span>
           <span className="ml-2">
