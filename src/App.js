@@ -1,6 +1,13 @@
 import "./App.css";
+import "react-notifications/lib/notifications.css";
+
 import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
 import { Alert } from "@windmill/react-ui";
+
+import {
+  NotificationContainer,
+  NotificationManager,
+} from "react-notifications";
 
 import React, { Suspense, useEffect, useState } from "react";
 
@@ -13,7 +20,6 @@ import { getTicketsFromDB, getTicketsFromDBUser } from "./firebase.util";
 
 import { db } from "./firebase.util";
 
-import { Homepage } from "./pages/Homepage";
 import Profile from "./pages/Profile";
 import { LoginForm } from "./components/LoginForm";
 
@@ -25,14 +31,14 @@ import Chat from "./pages/Chat";
 // Dynamic Imorting with React Lazy
 
 function App(props) {
-  const { setCurrentUser, currentUser, history } = props;
+  const { setCurrentUser, currentUser } = props;
   const [tickets, setTickets] = useState([]);
   const [areTicketsReady, setTicketsReady] = useState(false);
 
   useEffect(() => {
     var unSubscribeFromAuth = auth.onAuthStateChanged((user) => {
       if (user) {
-        console.log(user.email, "Sign in Successfull");
+        NotificationManager.success("Logged in Successfully", "Success");
         var docRef = db.collection("users").doc(`${user.uid}`);
 
         docRef
@@ -46,11 +52,11 @@ function App(props) {
               });
             } else {
               // doc.data() will be undefined in this case
-              console.log("No such document!");
+              NotificationManager.error("Something Went Wrong", "Error", 5000);
             }
           })
           .catch((error) => {
-            console.log("Error getting document:", error);
+            NotificationManager.error("Error: " + error, "Error", 5000);
           });
       } else {
         setCurrentUser({ email: null, role: null, uid: null });
@@ -68,7 +74,7 @@ function App(props) {
       "  areTicketsReady",
       areTicketsReady
     );
-  }, [tickets, areTicketsReady]);
+  }, [areTicketsReady]);
 
   const getTickets = () => {
     console.log("getTickets fired");
@@ -125,7 +131,7 @@ function App(props) {
             ) : null}
             {currentUser?.email ? (
               <Route exact path={"/createTicket"}>
-                <CreateTicket setTicketsReady={setTicketsReady} />
+                <CreateTicket />
               </Route>
             ) : null}
             <Route exact path={"/profile"}>
@@ -134,6 +140,7 @@ function App(props) {
           </main>
         </Suspense>
       </Router>
+      <NotificationContainer />
     </div>
   );
 }

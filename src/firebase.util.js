@@ -1,4 +1,5 @@
 import firebase from "firebase";
+import { NotificationManager } from "react-notifications";
 
 var firebaseConfig = {
   apiKey: "AIzaSyC9vyymdUTnDHnAWMYSkLGqbiOjXP7Vekg",
@@ -28,13 +29,21 @@ export const getUser = async (user, additionalData) => {
 
 export const addTicketToDB = async (ticket, owner) => {
   var newDocRef = db.collection("tickets").doc();
-  newDocRef.set({
-    ...ticket,
-    createdAt: new Date(),
-    owner: owner.uid,
-    id: newDocRef.id,
-    chats: [],
-  });
+  newDocRef
+    .set({
+      ...ticket,
+      createdAt: new Date(),
+      owner: owner.uid,
+      id: newDocRef.id,
+      chats: [],
+    })
+    .then(() => {
+      NotificationManager.success("Ticket Successfully added", "Success");
+      window.location.reload();
+    })
+    .catch((error) => {
+      NotificationManager.error("Something Went Wrong", "Error", 5000);
+    });
 };
 
 export const getTicketsFromDB = () => {
@@ -43,7 +52,6 @@ export const getTicketsFromDB = () => {
     .get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc, index) => {
-        // doc.data() is never undefined for query doc snapshots
         tickets.push(doc.data());
       });
     });
@@ -69,13 +77,17 @@ export const getTicketsFromDBUser = (user) => {
 export const messageSend = (ticketID, message, owner) => {
   var ticketRef = db.collection("tickets").doc(ticketID);
 
-  ticketRef.update({
-    chats: firebase.firestore.FieldValue.arrayUnion({
-      message: message,
-      owner: owner,
-      id: Math.floor(Math.random() * 10 + 1),
-    }),
-  });
+  ticketRef
+    .update({
+      chats: firebase.firestore.FieldValue.arrayUnion({
+        message: message,
+        owner: owner,
+        id: Math.floor(Math.random() * 10 + 1),
+      }),
+    })
+    .then(() => {
+      NotificationManager.success("Message Successfully Sent", "Success");
+    });
 
   // Set the "capital" field of the city 'DC'
   // return
@@ -91,13 +103,45 @@ export const getChatFromDB = async (ticketID) => {
         chats = doc.data().chats;
       } else {
         // doc.data() will be undefined in this case
-        console.log("No such document!");
+        NotificationManager.error("Something Went Wrong", "Error", 5000);
       }
     })
     .catch((error) => {
-      console.log("Error getting document:", error);
+      NotificationManager.error("Error: " + error, "Error", 5000);
     });
   return chats;
 };
 
-export const checkTicketStatusWithFirebase = (ticketID) => {};
+export const uploadFiletoDB = (file, ticketID, uid) => {
+  console.log("uploadFiletoDBuploadFiletoDB");
+  var storageRef = firebase.storage().ref();
+  var uploadTask = storageRef.child(`images/${file.name}`).put(file);
+  if (uploadTask.snapshot) {
+    uploadTask.on(
+      "state_changed",
+      () => {},
+      () => {
+        NotificationManager.error("Something Went Wrong", "Error", 5000);
+      },
+      () => {
+        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+          messageSend(ticketID, downloadURL, uid);
+          NotificationManager.success("File Successfully Uploaded", "Success");
+        });
+      }
+    );
+  }
+};
+
+export const deleteTicket = (ticketID) => {
+  db.collection("tickets")
+    .doc(ticketID)
+    .delete()
+    .then(() => {
+      NotificationManager.success("Ticket Successfully Deleted", "Success");
+      window.location.reload();
+    })
+    .catch(() => {
+      NotificationManager.error("Something Went Wrong", "Error", 5000);
+    });
+};

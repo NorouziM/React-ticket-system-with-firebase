@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Input } from "@windmill/react-ui";
 import { auth } from "../firebase.util";
+import { NotificationManager } from "react-notifications";
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -13,9 +14,7 @@ export const LoginForm = () => {
       await auth.signInWithEmailAndPassword(email, password);
       setEmail("");
       setPassword("");
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   };
   const onInputChange = (event) => {
     if (event.target.name === "email") setEmail(event.target.value);

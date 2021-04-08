@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { addTicketToDB } from "../firebase.util";
 import { connect } from "react-redux";
 
-const CreateTicket = ({ currentUser, setTicketsReady }) => {
+const CreateTicket = ({ currentUser }) => {
   const [name, setName] = useState("");
   const [subject, setSubject] = useState("");
   const [email, setEmail] = useState("");
@@ -29,8 +29,6 @@ const CreateTicket = ({ currentUser, setTicketsReady }) => {
       message: message,
     };
     addTicketToDB(ticket, currentUser);
-    console.log("setTicketsReady(false);");
-    setTicketsReady(false);
   };
 
   return (

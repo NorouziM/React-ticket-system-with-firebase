@@ -1,15 +1,34 @@
 import React, { useState } from "react";
-import { messageSend } from "../../firebase.util";
+import { messageSend, uploadFiletoDB } from "../../firebase.util";
+import Picker from "emoji-picker-react";
 
 const ChatInput = ({ ticketID, uid, setAreDialogsReady }) => {
   const [message, setMessage] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const onInputChange = (e) => {
     setMessage(e.target.value);
+  };
+  const onAttachChange = (e) => {
+    console.log(e.target.files[0]);
+    uploadFiletoDB(e.target.files[0], ticketID, uid);
+  };
+  const renderEmojiPicker = () => {
+    setShowEmojiPicker(!showEmojiPicker);
+  };
+  const onEmojiClick = (event, emojiObject) => {
+    setMessage(message + emojiObject.emoji);
   };
   return (
     <div className="flex flex-row items-center h-16 rounded-xl bg-white w-full px-4">
       <div>
         <button className="flex items-center justify-center text-gray-400 hover:text-gray-600">
+          <input
+            className="opacity-0	absolute -z-1 w-5 cursor-pointer	"
+            type="file"
+            name="photo"
+            id="upload-photo"
+            onChange={onAttachChange}
+          />
           <svg
             className="w-5 h-5"
             fill="none"
@@ -28,13 +47,21 @@ const ChatInput = ({ ticketID, uid, setAreDialogsReady }) => {
       </div>
       <div className="flex-grow ml-4">
         <div className="relative w-full">
+          {showEmojiPicker ? (
+            <div className="absolute bottom-14 right-0 ">
+              <Picker className="" onEmojiClick={onEmojiClick} />
+            </div>
+          ) : null}
           <input
             onChange={onInputChange}
             value={message}
             type="text"
             className="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"
           />
-          <button className="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600">
+          <button
+            onClick={renderEmojiPicker}
+            className="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600"
+          >
             <svg
               className="w-6 h-6"
               fill="none"

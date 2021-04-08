@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { getChatFromDB, db } from "../firebase.util";
+import { getChatFromDB, db, deleteTicket } from "../firebase.util";
 import { Spinner } from "./Spinner";
+import { connect } from "react-redux";
 
-const TicketCard = ({ ticket }) => {
+const TicketCard = ({ ticket, currentUser }) => {
   const [isTicketOpened, setTicketOpened] = useState(null);
 
   const toDateTime = (secs) => {
@@ -20,7 +21,7 @@ const TicketCard = ({ ticket }) => {
   };
   const checkTicketIsOpened = () => {
     getChatFromDB(ticket.id).then((dialogs) => {
-      if (dialogs.length) var lastChat = dialogs.slice(-1)[0];
+      if (dialogs) var lastChat = dialogs.slice(-1)[0];
       if (lastChat) {
         db.collection("users")
           .doc(lastChat.owner)
@@ -38,7 +39,7 @@ const TicketCard = ({ ticket }) => {
   }, []);
 
   var classString =
-    "flex w-full items-center justify-between bg-white px-8 py-6 border-green-500 ";
+    "flex w-5/6 mx-auto	-my-0 items-center justify-between bg-white px-8 py-6 border-indigo-500 shadow-lg ";
   classString += isTicketOpened ? " " : "border-l-4";
 
   return (
@@ -49,7 +50,7 @@ const TicketCard = ({ ticket }) => {
             class="border dark:border-gray-700 transition duration-500
 				ease-in-out"
           ></div>
-          <div class="flex flex-col mt-2">
+          <div class="flex flex-col mt-4">
             <div class="flex flex-row mt-2">
               <div class={classString}>
                 <div class="flex">
@@ -120,23 +121,35 @@ const TicketCard = ({ ticket }) => {
                         </span>
                       </div>
                     </div>
-
-                    <div class="mt-4 flex">
-                      <Link
-                        to={`/profile/${ticket.id}/${ticket.subject}/${ticket.name}/${ticket.owner}/${ticket.email}/${ticket.message}`}
-                      >
-                        <button
-                          onClick={checkTicketIsOpened}
-                          class="flex items-center
-										focus:outline-none border rounded-full
-										py-2 px-6 leading-none border-gray-500
-										dark:border-gray-600 select-none
-										hover:bg-blue-400 hover:text-white
-										dark-hover:text-gray-200"
+                    <div class="flex">
+                      <div class="mt-4 flex">
+                        <Link
+                          to={`/profile/${ticket.id}/${ticket.subject}/${ticket.name}/${ticket.owner}/${ticket.email}/${ticket.message}`}
                         >
-                          <span>Show details</span>
-                        </button>
-                      </Link>
+                          <button
+                            onClick={checkTicketIsOpened}
+                            class="flex items-center
+										rounded-full
+										py-2 px-6 leading-none
+										 select-none text-white bg-gradient"
+                          >
+                            <span>Show details</span>
+                          </button>
+                        </Link>
+                      </div>
+                      {currentUser.role === "admin" ? (
+                        <div class="ml-4 mt-4 flex">
+                          <button
+                            onClick={() => deleteTicket(ticket.id)}
+                            class="flex items-center
+										rounded-full
+										py-2 px-6 leading-none
+										 select-none text-white bg-red-500"
+                          >
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -151,4 +164,7 @@ const TicketCard = ({ ticket }) => {
   );
 };
 
-export default TicketCard;
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser,
+});
+export default connect(mapStateToProps)(TicketCard);
