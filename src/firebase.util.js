@@ -40,7 +40,7 @@ export const addTicketToDB = async (ticket, owner) => {
     .then(() => {
       // If we have stored the ticket successfully, Run notification and reload the page so we can see our new ticket in tickets list
       NotificationManager.success("Ticket Successfully added", "Success");
-      window.location.reload();
+      window.location.replace(window.location.origin);
     })
     .catch(() => {
       NotificationManager.error("Something Went Wrong", "Error", 5000);
@@ -137,7 +137,7 @@ export const deleteTicket = (ticketID) => {
     .delete()
     .then(() => {
       NotificationManager.success("Ticket Successfully Deleted", "Success");
-      window.location.reload();
+      window.location.replace(window.location.origin);
     })
     .catch(() => {
       NotificationManager.error("Something Went Wrong", "Error", 5000);
