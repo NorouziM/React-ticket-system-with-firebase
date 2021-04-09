@@ -1,6 +1,34 @@
-# Getting Started with Create React App
+# React Ticket System With Firebase
+By Mohammad Norouzi
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 👋 Hi Everyone
+
+
+This project was bootstrapped with Create React App
+
+## How It's Implemented?
+
+Application has two roles: 1.User 2.Admin
+
+User and admin can Create new ticket and see all their tickets.
+
+Admin also can visit other user's tickets and also can delete them.
+
+Sign up has not been implemented.
+
+Tickets that has has not opened yet, has a border on left.
+
+If the last message in chat is an admin message then ticket has opened.
+
+Everything related to backend has been handled with firebase.
+
+🙏Thanks for reading
+
+🚀Check out the [DEMO](https://react-ticket-system.netlify.app/)
+
+
+
+# DEFUALT README
 
 ## Available Scripts
 
