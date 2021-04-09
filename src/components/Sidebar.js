@@ -109,7 +109,7 @@ const Sidebar = ({ currentUser, role, setTicketsReady }) => {
                 <span
                   onClick={() => {
                     auth.signOut();
-                    window.location.reload();
+                    window.location.replace(window.location.origin);
                   }}
                   className="ml-4 capitalize"
                 >
