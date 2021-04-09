@@ -1,6 +1,11 @@
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/database";
+import "firebase/storage";
+import "firebase/auth";
+import "firebase/firestore";
 import { NotificationManager } from "react-notifications";
 
+// Basic configuration
 var firebaseConfig = {
   apiKey: "AIzaSyC9vyymdUTnDHnAWMYSkLGqbiOjXP7Vekg",
   authDomain: "react-test-dashboard-site.firebaseapp.com",
@@ -17,72 +22,67 @@ if (!firebase.apps.length) {
 } else {
   firebase.app(); // if already initialized
 }
-firebase.analytics();
+
 export const auth = firebase.auth();
 export const db = firebase.firestore();
 
-export const getUser = async (user, additionalData) => {
-  if (!user) return;
-  var docRef = db.collection("users").doc(`${user.uid}`);
-  return docRef;
-};
-
+// Function for adding tickets to database
 export const addTicketToDB = async (ticket, owner) => {
   var newDocRef = db.collection("tickets").doc();
   newDocRef
     .set({
       ...ticket,
-      createdAt: new Date(),
-      owner: owner.uid,
-      id: newDocRef.id,
+      createdAt: new Date(), // the time ticket has been created
+      owner: owner.uid, // Store user's uid so we do'nt show it to other users
+      id: newDocRef.id, // Store ticket's own id so we can find it in future
       chats: [],
     })
     .then(() => {
+      // If we have stored the ticket successfully, Run notification and reload the page so we can see our new ticket in tickets list
       NotificationManager.success("Ticket Successfully added", "Success");
       window.location.reload();
     })
-    .catch((error) => {
+    .catch(() => {
       NotificationManager.error("Something Went Wrong", "Error", 5000);
     });
 };
 
+// Fetch all the tickets from database (for admin role)
 export const getTicketsFromDB = () => {
   var tickets = [];
   db.collection("tickets")
     .get()
     .then((querySnapshot) => {
-      querySnapshot.forEach((doc, index) => {
-        tickets.push(doc.data());
+      querySnapshot.forEach((ticket) => {
+        tickets.push(ticket.data());
       });
     });
   return tickets;
 };
 
+// Fetch user's the tickets from database (for user role)
 export const getTicketsFromDBUser = (user) => {
-  console.log("getTicketsFromDBUser Fired");
   var tickets = [];
   db.collection("tickets")
     .get()
     .then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-
-        if (doc.data().owner === user.uid) tickets.push(doc.data());
+      querySnapshot.forEach((ticket) => {
+        if (ticket.data().owner === user.uid) tickets.push(ticket.data());
       });
     });
   console.log(tickets, "tickets");
   return tickets;
 };
 
+// Store message that hase sent in chat box, in database
 export const messageSend = (ticketID, message, owner) => {
   var ticketRef = db.collection("tickets").doc(ticketID);
-
   ticketRef
     .update({
       chats: firebase.firestore.FieldValue.arrayUnion({
         message: message,
         owner: owner,
-        id: Math.floor(Math.random() * 10 + 1),
+        id: Math.floor(Math.random() * 100 + 1), // Because arrayUnion updates only if the object is new, we had to generate an id so if message is the same we can save to database
       }),
     })
     .then(() => {
@@ -98,11 +98,10 @@ export const getChatFromDB = async (ticketID) => {
   var docRef = db.collection("tickets").doc(ticketID);
   await docRef
     .get()
-    .then((doc) => {
-      if (doc.exists) {
-        chats = doc.data().chats;
+    .then((ticket) => {
+      if (ticket.exists) {
+        chats = ticket.data().chats;
       } else {
-        // doc.data() will be undefined in this case
         NotificationManager.error("Something Went Wrong", "Error", 5000);
       }
     })
@@ -113,7 +112,6 @@ export const getChatFromDB = async (ticketID) => {
 };
 
 export const uploadFiletoDB = (file, ticketID, uid) => {
-  console.log("uploadFiletoDBuploadFiletoDB");
   var storageRef = firebase.storage().ref();
   var uploadTask = storageRef.child(`images/${file.name}`).put(file);
   if (uploadTask.snapshot) {
@@ -144,4 +142,8 @@ export const deleteTicket = (ticketID) => {
     .catch(() => {
       NotificationManager.error("Something Went Wrong", "Error", 5000);
     });
+};
+
+export const getUser = (userUid) => {
+  return db.collection("users").doc(userUid).get();
 };

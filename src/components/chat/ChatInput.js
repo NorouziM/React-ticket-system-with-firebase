@@ -1,15 +1,19 @@
 import React, { useState } from "react";
+
+// Firebase
 import { messageSend, uploadFiletoDB } from "../../firebase.util";
+
+// Emoji Package
 import Picker from "emoji-picker-react";
 
 const ChatInput = ({ ticketID, uid, setAreDialogsReady }) => {
-  const [message, setMessage] = useState("");
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [message, setMessage] = useState(""); // store Message written by user
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Trigger emoji box
+
   const onInputChange = (e) => {
     setMessage(e.target.value);
   };
   const onAttachChange = (e) => {
-    console.log(e.target.files[0]);
     uploadFiletoDB(e.target.files[0], ticketID, uid);
   };
   const renderEmojiPicker = () => {
@@ -82,16 +86,16 @@ const ChatInput = ({ ticketID, uid, setAreDialogsReady }) => {
       <div className="ml-4">
         <button
           onClick={() => {
-            setMessage("");
-            messageSend(ticketID, message, uid);
-            setAreDialogsReady(false);
+            setMessage(""); // Empty the Textarea
+            messageSend(ticketID, message, uid); // Send Message information to databse to store it
+            setAreDialogsReady(false); // say Chat.js to rerender and get the newly message shown
           }}
           className="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-1 flex-shrink-0 bg-gradient"
         >
           <span>Send</span>
           <span className="ml-2">
             <svg
-              class="w-4 h-4 transform rotate-45 -mt-px"
+              className="w-4 h-4 transform rotate-45 -mt-px"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

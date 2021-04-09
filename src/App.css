@@ -43,6 +43,9 @@
     rgba(59, 80, 157, 1) 100%
   ) !important;
 }
+.center-alert {
+  transform: translate(50%, 50%);
+}
 
 @keyframes App-logo-spin {
   from {

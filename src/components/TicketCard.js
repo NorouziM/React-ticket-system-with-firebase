@@ -1,15 +1,36 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+
+// Firebase
 import { getChatFromDB, db, deleteTicket } from "../firebase.util";
-import { Spinner } from "./Spinner";
+
+import Spinner from "./Spinner";
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+} from "@windmill/react-ui";
+
+// Redux
 import { connect } from "react-redux";
 
 const TicketCard = ({ ticket, currentUser }) => {
-  const [isTicketOpened, setTicketOpened] = useState(null);
+  const [isTicketOpened, setTicketOpened] = useState(null); // State to store whether ticket has opened or not
+  // if admin has sent the last message it has opened
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  function openModal() {
+    setIsModalOpen(true);
+  }
+  function closeModal() {
+    setIsModalOpen(false);
+  }
 
   const toDateTime = (secs) => {
-    var t = new Date(1970, 0, 1); // Epoch
+    // Convert Timestamp stored in database to readable date
+    var t = new Date(1970, 0, 1);
     t.setSeconds(secs);
     var options = {
       weekday: "long",
@@ -19,23 +40,31 @@ const TicketCard = ({ ticket, currentUser }) => {
     };
     return t.toLocaleDateString("en-UK", options).toString();
   };
+
+  // Check if the last message is an admin message
   const checkTicketIsOpened = () => {
     getChatFromDB(ticket.id).then((dialogs) => {
+      // Get all the chats related to this ticket
+
+      // if there is any dialogs on it, get the last one
       if (dialogs) var lastChat = dialogs.slice(-1)[0];
+      //  check who owns the last message?
       if (lastChat) {
         db.collection("users")
           .doc(lastChat.owner)
           .get()
           .then((doc) => {
             if (doc.data().role === "admin") setTicketOpened(true);
+            // if it's an admin message so flag it as opned ticket
             else setTicketOpened(false);
           });
-      } else setTicketOpened(false);
+      } else setTicketOpened(false); // if there was no message on this ticket
     });
   };
 
   useEffect(() => {
     checkTicketIsOpened();
+    // eslint-disable-next-line
   }, []);
 
   var classString =
@@ -47,26 +76,26 @@ const TicketCard = ({ ticket, currentUser }) => {
       {isTicketOpened !== null ? (
         <div>
           <div
-            class="border dark:border-gray-700 transition duration-500
+            className="border transition duration-500
 				ease-in-out"
           ></div>
-          <div class="flex flex-col mt-4">
-            <div class="flex flex-row mt-2">
-              <div class={classString}>
-                <div class="flex">
+          <div className="flex flex-col mt-4">
+            <div className="flex flex-row mt-2">
+              <div className={classString}>
+                <div className="flex">
                   <img
-                    class="h-12 w-12 rounded-full object-cover"
+                    className="h-12 w-12 rounded-full object-cover"
                     src="https://hackap.ir/wp-content/uploads/2021/04/profile.png"
                     alt="infamous"
                   />
 
-                  <div class="flex flex-col ml-6">
-                    <span class="text-lg font-bold">{ticket.subject}</span>
-                    <div class="mt-4 flex">
-                      <div class="flex">
+                  <div className="flex flex-col ml-6">
+                    <span className="text-lg font-bold">{ticket.subject}</span>
+                    <div className="mt-4 flex">
+                      <div className="flex">
                         <svg
-                          class="h-5 w-5 fill-current
-											dark:text-gray-300"
+                          className="h-5 w-5 fill-current
+											"
                           viewBox="0 0 24 24"
                         >
                           <path
@@ -77,17 +106,17 @@ const TicketCard = ({ ticket, currentUser }) => {
                           ></path>
                         </svg>
                         <span
-                          class="ml-2 text-sm text-gray-600
-											dark:text-gray-300 capitalize"
+                          className="ml-2 text-sm text-gray-600
+											 capitalize"
                         >
                           {ticket.name}
                         </span>
                       </div>
 
-                      <div class="flex ml-6">
+                      <div className="flex ml-6">
                         <svg
-                          class="h-5 w-5 fill-current
-											dark:text-gray-300"
+                          className="h-5 w-5 fill-current
+											"
                           viewBox="0 0 24 24"
                         >
                           <path
@@ -99,14 +128,14 @@ const TicketCard = ({ ticket, currentUser }) => {
                           ></path>
                         </svg>
                         <span
-                          class="ml-2 text-sm text-gray-600
-											dark:text-gray-300 capitalize"
+                          className="ml-2 text-sm text-gray-600
+											 capitalize"
                         >
                           {toDateTime(ticket.createdAt.seconds)}
                         </span>
                       </div>
 
-                      <div class="flex ml-6">
+                      <div className="flex ml-6">
                         <img
                           src="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' aria-labelledby='title' aria-describedby='desc' role='img' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3EEnvelope%3C/title%3E%3Cdesc%3EA line styled icon from Orion Icon Library.%3C/desc%3E%3Cpath data-name='layer2' fill='none' stroke='%23202020' stroke-miterlimit='10' stroke-width='2' d='M2 12l30 27.4L62 12' stroke-linejoin='round' stroke-linecap='round'%3E%3C/path%3E%3Cpath data-name='layer1' fill='none' stroke='%23202020' stroke-miterlimit='10' stroke-width='2' d='M2 12h60v40H2z' stroke-linejoin='round' stroke-linecap='round'%3E%3C/path%3E%3C/svg%3E"
                           alt="Ticket email"
@@ -114,21 +143,22 @@ const TicketCard = ({ ticket, currentUser }) => {
                         />
 
                         <span
-                          class="ml-2 text-sm text-gray-600
-											dark:text-gray-300 capitalize"
+                          className="ml-2 text-sm text-gray-600
+										 capitalize"
                         >
                           {ticket.email}
                         </span>
                       </div>
                     </div>
-                    <div class="flex">
-                      <div class="mt-4 flex">
+                    <div className="flex">
+                      <div className="mt-4 flex">
                         <Link
+                          // Send ticket data to chat box via url params
                           to={`/profile/${ticket.id}/${ticket.subject}/${ticket.name}/${ticket.owner}/${ticket.email}/${ticket.message}`}
                         >
                           <button
                             onClick={checkTicketIsOpened}
-                            class="flex items-center
+                            className="flex items-center
 										rounded-full
 										py-2 px-6 leading-none
 										 select-none text-white bg-gradient"
@@ -138,10 +168,11 @@ const TicketCard = ({ ticket, currentUser }) => {
                         </Link>
                       </div>
                       {currentUser.role === "admin" ? (
-                        <div class="ml-4 mt-4 flex">
+                        // if it's admin let him delete the ticket
+                        <div className="ml-4 mt-4 flex">
                           <button
-                            onClick={() => deleteTicket(ticket.id)}
-                            class="flex items-center
+                            onClick={openModal}
+                            className="flex items-center
 										rounded-full
 										py-2 px-6 leading-none
 										 select-none text-white bg-red-500"
@@ -156,6 +187,25 @@ const TicketCard = ({ ticket, currentUser }) => {
               </div>
             </div>
           </div>
+          <Modal isOpen={isModalOpen} onClose={closeModal}>
+            <ModalHeader>Deleting ticket</ModalHeader>
+            <ModalBody>Are you sure you want to delete this ticket?</ModalBody>
+            <ModalFooter>
+              <Button
+                className="w-full sm:w-auto"
+                layout="outline"
+                onClick={closeModal}
+              >
+                No
+              </Button>
+              <Button
+                onClick={() => deleteTicket(ticket.id)}
+                className="w-full sm:w-auto bg-red-500 hover:bg-red-600"
+              >
+                Yes
+              </Button>
+            </ModalFooter>
+          </Modal>
         </div>
       ) : (
         <Spinner size={28} />
@@ -165,6 +215,6 @@ const TicketCard = ({ ticket, currentUser }) => {
 };
 
 const mapStateToProps = ({ user }) => ({
-  currentUser: user.currentUser,
+  currentUser: user.currentUser, // pull current user from redux
 });
 export default connect(mapStateToProps)(TicketCard);

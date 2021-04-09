@@ -1,57 +1,59 @@
+import React, { Suspense, useEffect, useState } from "react";
+//Styling
 import "./App.css";
 import "react-notifications/lib/notifications.css";
-
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
 import { Alert } from "@windmill/react-ui";
-
+//Reacr Router
+import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+//Notifications
 import {
   NotificationContainer,
   NotificationManager,
 } from "react-notifications";
-
-import React, { Suspense, useEffect, useState } from "react";
-
-import "./App.css";
-import { Spinner } from "./components/Spinner";
+//Pages
+import Profile from "./pages/Profile";
+import Chat from "./pages/Chat";
+//Components
+import Spinner from "./components/Spinner";
 import Sidebar from "./components/Sidebar";
 import TicketCard from "./components/TicketCard";
 import CreateTicket from "./components/CreateTicket";
-import { getTicketsFromDB, getTicketsFromDBUser } from "./firebase.util";
+import LoginForm from "./components/LoginForm";
+//Firebse related
+import {
+  getTicketsFromDB,
+  getTicketsFromDBUser,
+  getUser,
+  auth,
+} from "./firebase.util";
 
-import { db } from "./firebase.util";
-
-import Profile from "./pages/Profile";
-import { LoginForm } from "./components/LoginForm";
-
-import { auth } from "./firebase.util";
-
+// Redux related
 import { connect } from "react-redux";
 import { setCurrentUser } from "./redux/userActions";
-import Chat from "./pages/Chat";
+
 // Dynamic Imorting with React Lazy
 
-function App(props) {
-  const { setCurrentUser, currentUser } = props;
-  const [tickets, setTickets] = useState([]);
-  const [areTicketsReady, setTicketsReady] = useState(false);
+function App({ setCurrentUser, currentUser }) {
+  const [tickets, setTickets] = useState([]); // Keeping Tickets that recieved from database
+  const [areTicketsReady, setTicketsReady] = useState(false); // state for determining whether tickets are completely fetched from database or not
 
   useEffect(() => {
     var unSubscribeFromAuth = auth.onAuthStateChanged((user) => {
       if (user) {
-        NotificationManager.success("Logged in Successfully", "Success");
-        var docRef = db.collection("users").doc(`${user.uid}`);
+        // If user successfully loged in
+        NotificationManager.success("Logged in Successfully", "Success"); // Show notification of success
 
-        docRef
-          .get()
-          .then((doc) => {
-            if (doc.exists) {
+        //Get User info from databbase and set it to redux state
+        getUser(user.uid)
+          .then((userFromDB) => {
+            if (userFromDB.exists) {
               setCurrentUser({
-                email: doc.data().email,
-                role: doc.data().role,
+                email: userFromDB.data()?.email,
+                role: userFromDB.data()?.role,
                 uid: user.uid,
               });
             } else {
-              // doc.data() will be undefined in this case
+              // userFromDB.data() will be undefined in this case
               NotificationManager.error("Something Went Wrong", "Error", 5000);
             }
           })
@@ -59,45 +61,45 @@ function App(props) {
             NotificationManager.error("Error: " + error, "Error", 5000);
           });
       } else {
+        //User signed out
         setCurrentUser({ email: null, role: null, uid: null });
       }
     });
 
     return function cleanup() {
+      // After component unmounted
       unSubscribeFromAuth();
     };
-  }, []);
-  useEffect(() => {
-    console.log(
-      "inside useEffect  tickets:",
-      tickets,
-      "  areTicketsReady",
-      areTicketsReady
-    );
-  }, [areTicketsReady]);
+  }, [setCurrentUser]);
 
+  // Get tickets depending on user role
   const getTickets = () => {
-    console.log("getTickets fired");
     if (currentUser?.role) {
+      // if he is admin get all of the tickets
       currentUser?.role === "user"
         ? setTickets(getTicketsFromDBUser(currentUser))
         : setTickets(getTicketsFromDB());
     }
+    // If you ger the tickets set the state so we know tickets are ready to be shown
     if (tickets) setTicketsReady(true);
   };
   return (
-    <div class="h-screen flex">
+    <div className="h-screen flex">
       <Router>
         <Suspense fallback={<Spinner size={28} />}>
           <Sidebar role={currentUser?.role} setTicketsReady={setTicketsReady} />
           <main
-            class="flex-1 bg-gray-200 dark:bg-gray-900 overflow-y-auto transition
+            className="flex-1 bg-gray-200 overflow-y-auto transition
 		duration-500 ease-in-out"
           >
             <Route exact path={"/"}>
-              {currentUser?.email ? <Redirect to="/profile" /> : <LoginForm />}
+              {
+                // If user is logged in don;t show login form and redirect to Profile page
+                currentUser?.email ? <Redirect to="/profile" /> : <LoginForm />
+              }
             </Route>
             {currentUser?.email ? (
+              // Declaring chat page url with url params , Don't show the route to not logged in users
               <Route
                 path={
                   "/profile/:ticketID/:subject/:name/:owner/:email/:message"
@@ -107,23 +109,24 @@ function App(props) {
               </Route>
             ) : null}
             {currentUser?.email ? (
+              // First check if Tickets are ready and fetched and if not go and fetch them
               <Route exact path={"/tickets"}>
                 {!areTicketsReady ? getTickets() : null}
                 {tickets.length ? (
                   <div>
-                    {!areTicketsReady ? (
-                      <Spinner size={28} />
-                    ) : (
-                      tickets.map((ticket) => {
-                        return <TicketCard ticket={ticket} />;
-                      })
-                    )}
+                    {
+                      // while we are waiting to fetching tickets get completed we render spinner component
+                      !areTicketsReady ? (
+                        <Spinner className="mr-12" size={28} />
+                      ) : (
+                        tickets.map((ticket) => {
+                          return <TicketCard ticket={ticket} />;
+                        })
+                      )
+                    }
                   </div>
                 ) : (
-                  <Alert
-                    className="mt-2 w-1/2 translate-x-1/2	translate-x-1/2"
-                    type="danger"
-                  >
+                  <Alert className="mt-2 w-1/2 center-alert" type="danger">
                     No Tickets Found
                   </Alert>
                 )}
@@ -146,9 +149,9 @@ function App(props) {
 }
 
 const mapDispatchToProps = (dispatch) => ({
-  setCurrentUser: (user) => dispatch(setCurrentUser(user)),
+  setCurrentUser: (user) => dispatch(setCurrentUser(user)), // setCurrentUser action that we used after geting user data from database
 });
 const mapStateToProps = ({ user }) => ({
-  currentUser: user.currentUser,
+  currentUser: user.currentUser, // Pull current user from redux
 });
 export default connect(mapStateToProps, mapDispatchToProps)(App);

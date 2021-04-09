@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import { Alert } from "@windmill/react-ui";
 
 const Profile = (props) => {
   const { currentUser } = props;
@@ -8,9 +8,13 @@ const Profile = (props) => {
   return (
     <div>
       {currentUser?.email ? (
-        <p>You are logged in</p>
+        <Alert className="mt-5 w-1/2 center-alert" type="success">
+          You are logged in
+        </Alert>
       ) : (
-        <p>You are not logged in</p>
+        <Alert className="mt-5 w-1/2 center-alert" type="warning">
+          You are not logged in
+        </Alert>
       )}
     </div>
   );

@@ -1,20 +1,27 @@
 import React, { useState } from "react";
+
 import { Input } from "@windmill/react-ui";
+import { Alert } from "@windmill/react-ui";
+
 import { auth } from "../firebase.util";
+
 import { NotificationManager } from "react-notifications";
 
-export const LoginForm = () => {
+const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const onFormSubmit = async (event) => {
-    event.preventDefault();
+    event.preventDefault(); // Prevent page to reload
 
     try {
       await auth.signInWithEmailAndPassword(email, password);
       setEmail("");
       setPassword("");
-    } catch (err) {}
+    } catch (err) {
+      // If Credentials are wrong
+      NotificationManager.error(err.message, "Error", 5000);
+    }
   };
   const onInputChange = (event) => {
     if (event.target.name === "email") setEmail(event.target.value);
@@ -23,13 +30,26 @@ export const LoginForm = () => {
 
   return (
     <div>
+      <Alert className="w-1/2 center-alert" type="info">
+        User 1: <strong>Email:</strong> user@user.com <strong>Password:</strong>{" "}
+        user@user.com
+      </Alert>
+      <Alert className="mt-3 w-1/2 center-alert" type="info">
+        User 2: <strong>Email:</strong> user2@user.com{" "}
+        <strong>Password:</strong> user2@user.com
+      </Alert>
+      <Alert className="mt-3 w-1/2 center-alert" type="warning">
+        Admin: <strong>Email:</strong> admin@admin.com{" "}
+        <strong>Password:</strong> admin@admin.com
+      </Alert>
+
       <div
-        style={{ minHeight: "90vh" }}
+        style={{ minHeight: "80vh" }}
         className="flex items-center justify-center px-4 sm:px-6 lg:px-8"
       >
-        <div className="form max-w-md w-full space-y-12 -mt-48">
+        <div className="form max-w-md w-full space-y-12 -mt-72">
           <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-600">
+            <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-600">
               Login
             </h2>
           </div>
@@ -98,3 +118,4 @@ export const LoginForm = () => {
     </div>
   );
 };
+export default LoginForm;

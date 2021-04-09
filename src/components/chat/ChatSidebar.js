@@ -4,7 +4,7 @@ const ChatSidebar = ({ subject, name, email, message }) => {
   return (
     <div className="flex flex-col flex-auto w-1/4 h-full p-6 break-words ">
       <div className="hidden md:flex flex-col flex-auto flex-shrink-0 rounded-2xl h-full p-4 text-white overflow-auto bg-gradient border-gray-400 border shadow-lg ">
-        <h1 className="text-2xl mt-10 font-bold">{subject}</h1>
+        <h1 className="text-2xl mt-10 font-bold capitalize">{subject}</h1>
         <div className="text-xl mt-12 font-thin">
           <h2 className="font-bold">Name</h2>
           <h2>{name}</h2>
