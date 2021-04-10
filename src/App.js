@@ -95,7 +95,7 @@ function App({ setCurrentUser, currentUser }) {
         <Suspense fallback={<Spinner size={28} />}>
           <Sidebar role={currentUser?.role} setTicketsReady={setTicketsReady} />
           <main
-            className="flex-1 bg-gray-200 overflow-y-auto transition
+            className="flex-1 bg-gray-100 overflow-y-auto transition
 		duration-500 ease-in-out"
           >
             <Route exact path={"/"}>
