@@ -3,6 +3,7 @@ const INITIAL_STATE = {
     email: null,
     role: null,
     uid: null,
+    profileURL: null,
   },
 };
 
@@ -15,6 +16,7 @@ const UserReducer = (state = INITIAL_STATE, action) => {
           email: action.payload.email,
           role: action.payload.role,
           uid: action.payload.uid,
+          profileURL: action.payload.profileURL,
         },
       };
 

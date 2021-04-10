@@ -53,8 +53,18 @@ const Chat = ({ currentUser }) => {
                       {dialogs.map((dialog) => {
                         if (dialog.owner === currentUser.uid)
                           // check if its user's message or not
-                          return <MyDialog message={dialog.message} />; // if it's user's message then show it on right side
-                        return <HisDialog message={dialog.message} />;
+                          return (
+                            <MyDialog
+                              message={dialog.message}
+                              img={currentUser.profileURL}
+                            />
+                          ); // if it's user's message then show it on right side
+                        return (
+                          <HisDialog
+                            message={dialog.message}
+                            img={currentUser.profileURL}
+                          />
+                        );
                       })}
                     </div>
                   </div>

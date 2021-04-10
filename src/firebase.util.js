@@ -131,6 +131,18 @@ export const uploadFiletoDB = (file, ticketID, uid) => {
   }
 };
 
+export const updateProfileImage = async (imgURL, uid) => {
+  await db
+    .collection("users")
+    .doc(uid)
+    .update({
+      profileURL: imgURL,
+    })
+    .then(() => {
+      return true;
+    });
+};
+
 export const deleteTicket = (ticketID) => {
   db.collection("tickets")
     .doc(ticketID)

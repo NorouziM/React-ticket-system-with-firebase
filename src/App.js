@@ -51,6 +51,7 @@ function App({ setCurrentUser, currentUser }) {
                 email: userFromDB.data()?.email,
                 role: userFromDB.data()?.role,
                 uid: user.uid,
+                profileURL: userFromDB.data()?.profileURL,
               });
             } else {
               // userFromDB.data() will be undefined in this case
@@ -72,8 +73,13 @@ function App({ setCurrentUser, currentUser }) {
     };
   }, [setCurrentUser]);
 
+  useEffect(() => {
+    console.log(currentUser, "currentUser");
+  }, [currentUser]);
+
   // Get tickets depending on user role
   const getTickets = () => {
+    console.log("getTickets fired");
     if (currentUser?.role) {
       // if he is admin get all of the tickets
       currentUser?.role === "user"
@@ -138,7 +144,8 @@ function App({ setCurrentUser, currentUser }) {
               </Route>
             ) : null}
             <Route exact path={"/profile"}>
-              <Profile />
+              {!areTicketsReady ? getTickets() : null}
+              <Profile tickets={tickets} areTicketsReady={areTicketsReady} />
             </Route>
           </main>
         </Suspense>
