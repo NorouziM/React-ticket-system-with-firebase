@@ -75,10 +75,6 @@ const TicketCard = ({ ticket, currentUser }) => {
     <div>
       {isTicketOpened !== null ? (
         <div>
-          <div
-            className="border transition duration-500
-				ease-in-out"
-          ></div>
           <div className="flex flex-col mt-4">
             <div className="flex flex-row mt-2">
               <div className={classString}>

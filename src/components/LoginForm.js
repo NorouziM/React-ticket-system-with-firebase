@@ -44,7 +44,7 @@ const LoginForm = () => {
       </Alert>
 
       <div
-        style={{ minHeight: "80vh" }}
+        style={{ minHeight: "650px" }}
         className="flex items-center justify-center px-4 sm:px-6 lg:px-8"
       >
         <div className="form max-w-md w-full space-y-12 -mt-72">
