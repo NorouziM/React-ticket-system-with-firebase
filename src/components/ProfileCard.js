@@ -56,11 +56,14 @@ const ProfileCard = ({
       <div className="w-full h-screen flex justify-center items-center">
         <div className="container mx-auto max-w-xs rounded-lg overflow-hidden shadow-lg my-2 bg-white">
           <div className="relative mb-6">
-            <img
-              className="w-full"
-              src={currentUser?.profileURL}
-              alt="Profile picture"
-            />
+            <div
+              className="w-full bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${currentUser?.profileURL})`,
+                minHeight: "300px",
+              }}
+            ></div>
+
             <div
               className="text-center absolute w-full"
               style={{ bottom: "-30px" }}
@@ -94,7 +97,7 @@ const ProfileCard = ({
           </div>
           <div className="py-10 px-6 text-center tracking-wide grid grid-cols-1">
             <div className="posts">
-              <p className="text-lg">
+              <p className="text-xlg">
                 {areTicketsReady ? tickets.length : null}
               </p>
               <p className="text-gray-400 text-sm">Tickets</p>
